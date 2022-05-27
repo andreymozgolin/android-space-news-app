@@ -10,13 +10,21 @@ import com.squareup.picasso.Picasso
 import ru.andreymozgolin.spacenews.R
 import ru.andreymozgolin.spacenews.data.Article
 
-class ArticlesAdapter(var articles: List<Article>): RecyclerView.Adapter<ArticlesAdapter.ArticleHolder>() {
+class ArticlesAdapter(var articles: List<Article>, val callbacks: ArticlesFragment.Callbacks?): RecyclerView.Adapter<ArticlesAdapter.ArticleHolder>() {
 
-    class ArticleHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ArticleHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private lateinit var article: Article
         private val image = itemView.findViewById<ImageView>(R.id.article_item_image)
         private val title = itemView.findViewById<TextView>(R.id.article_item_title)
 
+        init {
+            itemView.setOnClickListener {
+                this@ArticlesAdapter.callbacks?.onArticleSelected(article.id)
+            }
+        }
+
         fun bind(article: Article) {
+            this.article = article
             title.text = article.title
             Picasso.get().load(article.imageUrl).into(image)
         }

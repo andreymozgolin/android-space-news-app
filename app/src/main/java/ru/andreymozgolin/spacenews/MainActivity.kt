@@ -2,9 +2,10 @@ package ru.andreymozgolin.spacenews
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import ru.andreymozgolin.spacenews.articles.ArticleDetailFragment
 import ru.andreymozgolin.spacenews.articles.ArticlesFragment
 
-class MainActivity: AppCompatActivity() {
+class MainActivity: AppCompatActivity(), ArticlesFragment.Callbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -16,5 +17,13 @@ class MainActivity: AppCompatActivity() {
                 .add(R.id.main_fragment_container, ArticlesFragment())
                 .commit()
         }
+    }
+
+    override fun onArticleSelected(articleId: Int) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.main_fragment_container, ArticleDetailFragment.create(articleId))
+            .addToBackStack(null)
+            .commit()
     }
 }

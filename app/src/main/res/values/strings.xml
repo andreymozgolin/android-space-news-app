@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Space News</string>
+    <string name="news_site">"Source: %s"</string>
+    <string name="published_at">Date: %s</string>
 </resources>

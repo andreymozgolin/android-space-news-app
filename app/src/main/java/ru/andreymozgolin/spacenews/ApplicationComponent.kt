@@ -3,6 +3,7 @@ package ru.andreymozgolin.spacenews
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
+import ru.andreymozgolin.spacenews.articles.ArticleDetailFragment
 import ru.andreymozgolin.spacenews.articles.ArticlesFragment
 import ru.andreymozgolin.spacenews.di.DbModule
 import ru.andreymozgolin.spacenews.di.NetworkModule
@@ -18,5 +19,6 @@ interface ApplicationComponent {
     }
 
     fun inject(activity: MainActivity)
-    fun inject(activity: ArticlesFragment)
+    fun inject(fragment: ArticlesFragment)
+    fun inject(fragment: ArticleDetailFragment)
 }

@@ -3,6 +3,7 @@ package ru.andreymozgolin.spacenews.articles
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.schedulers.Schedulers.io
 import ru.andreymozgolin.spacenews.data.Article
@@ -28,5 +29,9 @@ class ArticlesViewModel @Inject constructor(
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 
-
+    fun getArticle(articleId: Int): Single<Article> {
+        return Single.create<Article> {
+            it.onSuccess(repository.getArticle(articleId))
+        }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+    }
 }

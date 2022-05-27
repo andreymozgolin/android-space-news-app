@@ -6,22 +6,24 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.core.Scheduler
 import ru.andreymozgolin.spacenews.R
 import ru.andreymozgolin.spacenews.SpaceNewsApplication
 import javax.inject.Inject
 
-class ArticlesFragment: Fragment(R.layout.fragment_articles) {
+class ArticlesFragment: Fragment() {
     @Inject lateinit var viewModel: ArticlesViewModel
     private lateinit var recyclerView: RecyclerView
+    private lateinit var loadingView: ProgressBar
+    private var callbacks: Callbacks? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireActivity().application as SpaceNewsApplication).component.inject(this)
+        callbacks = context as Callbacks
     }
 
     override fun onCreateView(
@@ -29,35 +31,37 @@ class ArticlesFragment: Fragment(R.layout.fragment_articles) {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)?.apply {
-            recyclerView = findViewById(R.id.articles_recycler)
-            recyclerView.adapter = ArticlesAdapter(listOf())
-        }
-    }
+        val view = inflater.inflate(R.layout.fragment_articles, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        loadingView = view.findViewById(R.id.articles_loading)
+        recyclerView = view.findViewById(R.id.articles_recycler)
+        recyclerView.adapter = ArticlesAdapter(listOf(), callbacks)
 
         viewModel.articles.subscribe {
             when (it) {
                 is ArticlesState.Loading ->
-                    Toast.makeText(
-                        context,
-                        "Loading articles",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    loadingView.visibility = ProgressBar.VISIBLE
                 is ArticlesState.Result -> {
+                    loadingView.visibility = ProgressBar.INVISIBLE
                     (recyclerView.adapter as ArticlesAdapter).refreshArticles(it.data)
-                    Toast.makeText(
-                        context,
-                        "Data loaded ${it.data.size}",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
-                is ArticlesState.Error -> Toast.makeText(context, it.error, Toast.LENGTH_SHORT)
-                    .show()
+                is ArticlesState.Error -> {
+                    loadingView.visibility = ProgressBar.INVISIBLE
+                    Toast.makeText(context, it.error, Toast.LENGTH_SHORT).show()
+                }
             }
         }
+
+        return view
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
+    interface Callbacks {
+        fun onArticleSelected(articleId: Int)
     }
 
 }

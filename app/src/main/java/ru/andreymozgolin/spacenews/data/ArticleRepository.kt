@@ -25,4 +25,8 @@ class ArticleRepository @Inject constructor(
         return articles
     }
 
+    fun getArticle(articleId: Int): Article {
+        return articleDao.getArticle(articleId)
+    }
+
 }
