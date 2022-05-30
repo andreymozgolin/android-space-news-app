@@ -26,7 +26,7 @@ class ArticlesAdapter(var articles: List<Article>, val callbacks: ArticlesFragme
         fun bind(article: Article) {
             this.article = article
             title.text = article.title
-            Picasso.get().load(article.imageUrl).into(image)
+            Picasso.get().load(article.imageUrl).fit().centerCrop().into(image)
         }
     }
 
@@ -42,6 +42,11 @@ class ArticlesAdapter(var articles: List<Article>, val callbacks: ArticlesFragme
 
     fun refreshArticles(articles: List<Article>) {
         this.articles = articles
+        notifyDataSetChanged()
+    }
+
+    fun addArticles(articles: List<Article>) {
+        this.articles += articles
         notifyDataSetChanged()
     }
 }
