@@ -3,6 +3,7 @@ package ru.andreymozgolin.spacenews.data
 import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
 @Entity
 data class Article(
@@ -12,5 +13,5 @@ data class Article(
     @NonNull val imageUrl: String,
     @NonNull val newsSite: String,
     @NonNull val summary: String,
-    @NonNull val publishedAt: String
+    @NonNull val publishedAt: Date
 )

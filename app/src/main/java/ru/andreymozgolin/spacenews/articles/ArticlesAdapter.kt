@@ -9,13 +9,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import ru.andreymozgolin.spacenews.R
 import ru.andreymozgolin.spacenews.data.Article
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ArticlesAdapter(var articles: List<Article>, val callbacks: ArticlesFragment.Callbacks?): RecyclerView.Adapter<ArticlesAdapter.ArticleHolder>() {
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
 
     inner class ArticleHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private lateinit var article: Article
         private val image = itemView.findViewById<ImageView>(R.id.article_item_image)
         private val title = itemView.findViewById<TextView>(R.id.article_item_title)
+        private val source = itemView.findViewById<TextView>(R.id.article_item_source)
+        private val date = itemView.findViewById<TextView>(R.id.article_item_date)
 
         init {
             itemView.setOnClickListener {
@@ -26,6 +32,8 @@ class ArticlesAdapter(var articles: List<Article>, val callbacks: ArticlesFragme
         fun bind(article: Article) {
             this.article = article
             title.text = article.title
+            source.text = article.newsSite
+            date.text = dateFormat.format(article.publishedAt)
             Picasso.get().load(article.imageUrl).fit().centerCrop().into(image)
         }
     }

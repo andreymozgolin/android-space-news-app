@@ -16,6 +16,7 @@ import com.squareup.picasso.Picasso
 import ru.andreymozgolin.spacenews.R
 import ru.andreymozgolin.spacenews.SpaceNewsApplication
 import ru.andreymozgolin.spacenews.data.Article
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 private const val ARG_ARTICLE_ID = "article_id"
@@ -62,7 +63,7 @@ class ArticleDetailFragment: Fragment(R.layout.fragment_article_detail) {
         Picasso.get().load(article.imageUrl).into(image)
         title.text = article.title
         summary.text = article.summary
-        published.text = getString(R.string.published_at, article.publishedAt)
+        published.text = getString(R.string.published_at, SimpleDateFormat("yyyy-MM-dd HH:mm").format(article.publishedAt))
         site.text = getString(R.string.news_site, article.newsSite)
         link.apply {
             text = article.newsSite
