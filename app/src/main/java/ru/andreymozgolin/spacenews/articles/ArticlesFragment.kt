@@ -93,7 +93,7 @@ class ArticlesFragment: Fragment() {
                 is ArticlesState.Error -> {
                     isLoading = false
                     loadingView.visibility = ProgressBar.INVISIBLE
-                    Log.e(TAG, "Couldn't load articles. Error details: ${it.error}")
+                    Log.e(TAG, "Couldn't load articles. Error details: ${it.error}",it.throwable)
                     Toast.makeText(context, "Couldn't load articles.", Toast.LENGTH_SHORT).show()
                 }
             }
