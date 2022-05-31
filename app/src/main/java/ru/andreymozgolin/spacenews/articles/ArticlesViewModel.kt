@@ -12,7 +12,7 @@ import javax.inject.Singleton
 sealed class ArticlesState {
     object Loading : ArticlesState()
     class Result(val data: List<Article>): ArticlesState()
-    class Error(val error: String): ArticlesState()
+    class Error(val error: String, val throwable: Throwable): ArticlesState()
 }
 
 @Singleton
@@ -35,7 +35,7 @@ class ArticlesViewModel @Inject constructor(
             .subscribe({
                 articles.onNext(ArticlesState.Result(it))
             },{
-                articles.onNext(ArticlesState.Error(it.message ?: "Couldn't load articles"))
+                articles.onNext(ArticlesState.Error(it.message ?: "Couldn't load articles", it))
             })
     }
 
@@ -47,7 +47,7 @@ class ArticlesViewModel @Inject constructor(
             .subscribe({
                 articles.onNext(ArticlesState.Result(it))
             },{
-                articles.onNext(ArticlesState.Error(it.message ?: "Couldn't load articles"))
+                articles.onNext(ArticlesState.Error(it.message ?: "Couldn't load articles", it))
             })
     }
 }
