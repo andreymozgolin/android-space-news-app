@@ -1,10 +1,9 @@
 package ru.andreymozgolin.spacenews.articles
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import ru.andreymozgolin.spacenews.data.Article
 import ru.andreymozgolin.spacenews.data.ArticleRepository
 import javax.inject.Inject
@@ -12,7 +11,7 @@ import javax.inject.Singleton
 
 sealed class ArticlesState {
     object Loading : ArticlesState()
-    class Result(val data: List<Article>, val append: Boolean = false): ArticlesState()
+    class Result(val data: List<Article>): ArticlesState()
     class Error(val error: String): ArticlesState()
 }
 
@@ -20,7 +19,7 @@ sealed class ArticlesState {
 class ArticlesViewModel @Inject constructor(
     val repository: ArticleRepository
 ) {
-    val articles: PublishSubject<ArticlesState> = PublishSubject.create()
+    val articles: BehaviorSubject<ArticlesState> = BehaviorSubject.create()
 
     fun getArticle(articleId: Int): Single<Article> {
         return Single.create<Article> {
@@ -46,7 +45,7 @@ class ArticlesViewModel @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                articles.onNext(ArticlesState.Result(it, true))
+                articles.onNext(ArticlesState.Result(it))
             },{
                 articles.onNext(ArticlesState.Error(it.message ?: "Couldn't load articles"))
             })

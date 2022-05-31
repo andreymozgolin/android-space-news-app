@@ -18,7 +18,7 @@ private const val TAG = "ArticlesFragment"
 
 class ArticlesFragment: Fragment() {
     @Inject lateinit var viewModel: ArticlesViewModel
-    private var subscriptions: CompositeDisposable = CompositeDisposable()
+    private lateinit var subscriptions: CompositeDisposable
     private lateinit var recyclerView: RecyclerView
     private lateinit var loadingView: ProgressBar
     private var callbacks: Callbacks? = null
@@ -33,7 +33,7 @@ class ArticlesFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        observeViewModel()
+        viewModel.loadArticles()
     }
 
     override fun onCreateView(
@@ -57,7 +57,7 @@ class ArticlesFragment: Fragment() {
             }
         })
 
-        viewModel.loadArticles()
+        observeViewModel()
 
         return view
     }
@@ -76,6 +76,7 @@ class ArticlesFragment: Fragment() {
     }
 
     private fun observeViewModel() {
+        subscriptions = CompositeDisposable()
         subscriptions.add(viewModel.articles.subscribe {
             when (it) {
                 is ArticlesState.Loading -> {
@@ -87,11 +88,7 @@ class ArticlesFragment: Fragment() {
                     Log.d(TAG, "Received new articles.")
                     isLoading = false
                     loadingView.visibility = ProgressBar.INVISIBLE
-                    val adapter = (recyclerView.adapter as ArticlesAdapter)
-                    if (it.append)
-                        adapter.addArticles(it.data)
-                    else
-                        adapter.refreshArticles(it.data)
+                    (recyclerView.adapter as ArticlesAdapter).refreshArticles(it.data)
                 }
                 is ArticlesState.Error -> {
                     isLoading = false
@@ -103,8 +100,8 @@ class ArticlesFragment: Fragment() {
         })
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         subscriptions.dispose()
     }
 

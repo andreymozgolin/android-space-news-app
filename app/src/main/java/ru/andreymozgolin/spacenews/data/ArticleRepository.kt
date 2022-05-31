@@ -5,6 +5,7 @@ import io.reactivex.rxjava3.core.Observable
 import ru.andreymozgolin.spacenews.api.SpaceNewsService
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.min
 
 private const val TAG = "ArticleRepository"
 
@@ -33,12 +34,13 @@ class ArticleRepository @Inject constructor(
     }
 
     fun getMoreArticles(): Observable<List<Article>> = Observable.create {
-        val minId = articleDao.getMinId()
+        var articles = articleDao.getAll()
+        val minId = articles.map { article ->  article.id }.reduce(::min)
         Log.d(TAG, "Found last loaded article with id = $minId")
 
-        val articles = loadArticles(minId)
-        Log.d(TAG, "Loaded ${articles.size} articles from remote storage.")
-        it.onNext(articles)
+        val newArticles = loadArticles(minId)
+        Log.d(TAG, "Loaded ${newArticles.size} articles from remote storage.")
+        it.onNext(articles + newArticles)
         it.onComplete()
     }
 

@@ -44,9 +44,4 @@ class ArticlesAdapter(var articles: List<Article>, val callbacks: ArticlesFragme
         this.articles = articles
         notifyDataSetChanged()
     }
-
-    fun addArticles(articles: List<Article>) {
-        this.articles += articles
-        notifyDataSetChanged()
-    }
 }

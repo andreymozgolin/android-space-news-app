@@ -12,9 +12,6 @@ interface ArticleDao {
     @Query("SELECT * FROM article WHERE id = :articleId")
     fun getArticle(articleId: Int): Article
 
-    @Query("SELECT min(id) as id FROM article")
-    fun getMinId(): Int
-
     @Insert
     fun insertAll(vararg article: Article)
 
