@@ -19,6 +19,7 @@ private const val TAG = "ArticlesFragment"
 class ArticlesFragment: Fragment() {
     @Inject lateinit var viewModel: ArticlesViewModel
     private lateinit var subscriptions: CompositeDisposable
+    private lateinit var adapter: ArticlesAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var loadingView: ProgressBar
     private var callbacks: Callbacks? = null
@@ -33,7 +34,7 @@ class ArticlesFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel.loadArticles()
+        adapter = ArticlesAdapter(listOf(), callbacks)
     }
 
     override fun onCreateView(
@@ -45,7 +46,7 @@ class ArticlesFragment: Fragment() {
 
         loadingView = view.findViewById(R.id.articles_loading)
         recyclerView = view.findViewById(R.id.articles_recycler)
-        recyclerView.adapter = ArticlesAdapter(listOf(), callbacks)
+        recyclerView.adapter = adapter
         recyclerView.addOnScrollListener(object : OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -58,6 +59,7 @@ class ArticlesFragment: Fragment() {
         })
 
         observeViewModel()
+        viewModel.loadArticles()
 
         return view
     }
@@ -88,7 +90,7 @@ class ArticlesFragment: Fragment() {
                     Log.d(TAG, "Received new articles.")
                     isLoading = false
                     loadingView.visibility = ProgressBar.INVISIBLE
-                    (recyclerView.adapter as ArticlesAdapter).refreshArticles(it.data)
+                    adapter.refreshArticles(if (it.changes) adapter.articles + it.data else it.data)
                 }
                 is ArticlesState.Error -> {
                     isLoading = false

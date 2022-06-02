@@ -2,10 +2,10 @@ package ru.andreymozgolin.spacenews.data
 
 import android.util.Log
 import io.reactivex.rxjava3.core.Observable
+import retrofit2.Call
 import ru.andreymozgolin.spacenews.api.SpaceNewsService
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.min
 
 private const val TAG = "ArticleRepository"
 
@@ -16,37 +16,46 @@ class ArticleRepository @Inject constructor(
 ) {
 
     fun getArticles(reload: Boolean = false): Observable<List<Article>> = Observable.create {
-        var articles = listOf<Article>()
-        if (reload) {
-            articleDao.dropAll()
+        var articles = if (reload) {
             Log.d(TAG, "Drop articles from local storage.")
+            articleDao.dropAll()
+            listOf<Article>()
         } else {
-            articles = articleDao.getAll()
-            Log.d(TAG, "Loaded ${articles.size} articles from local storage.")
+            articleDao.getAll().also { result ->
+                Log.d(TAG, "Loaded ${result.size} articles from local storage.")
+            }
         }
 
         if (articles.isEmpty()) {
-            articles = loadArticles()
-            Log.d(TAG, "Loaded ${articles.size} articles from remote storage.")
+            articles = loadArticles(spaceNewsService.getArticles())
         }
         it.onNext(articles)
         it.onComplete()
     }
 
     fun getMoreArticles(): Observable<List<Article>> = Observable.create {
-        var articles = articleDao.getAll()
-        val minId = articles.map { article ->  article.id }.reduce(::min)
-        Log.d(TAG, "Found last loaded article with id = $minId")
-
-        val newArticles = loadArticles(minId)
-        Log.d(TAG, "Loaded ${newArticles.size} articles from remote storage.")
-        it.onNext(articles + newArticles)
+        articleDao.getMinId()?.also { minId ->
+            it.onNext(loadArticles(spaceNewsService.getArticles(minId)))
+        } ?: it.onNext(listOf())
         it.onComplete()
     }
 
-    private fun loadArticles(fromId: Int? = null): List<Article> {
-        val articles = spaceNewsService.getArticles(fromId = fromId).execute().body() ?: listOf()
-        articleDao.insertAll(*articles.toTypedArray())
+    fun getLastArticles(): Observable<List<Article>> = Observable.create {
+        articleDao.getMaxId()?.also { maxId ->
+            it.onNext(loadArticles(spaceNewsService.getLastArticles(maxId)))
+        } ?: it.onNext(listOf())
+        it.onComplete()
+    }
+
+    private fun loadArticles(remoteCall: Call<List<Article>>): List<Article> {
+        val articles = remoteCall.execute().body() ?: emptyList()
+        Log.d(TAG, "Loaded ${articles.size} articles from remote storage.")
+
+        if (articles.isNotEmpty()) {
+            Log.d(TAG, "Save articles to local storage.")
+            articleDao.insertAll(articles)
+        }
+
         return articles
     }
 

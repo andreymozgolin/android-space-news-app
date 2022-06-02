@@ -12,4 +12,11 @@ interface SpaceNewsService {
         @Query("id_lt") fromId: Int? = null,
         @Query("_limit") limit: Int = 10
     ): Call<List<Article>>
+
+    @GET("articles?_sort=id")
+    fun getLastArticles(
+        @Query("id_gt") fromId: Int,
+        @Query("_limit") limit: Int = 10
+    ): Call<List<Article>>
+
 }
