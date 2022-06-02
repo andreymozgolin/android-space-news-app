@@ -7,6 +7,7 @@ import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -46,6 +47,7 @@ class ArticlesFragment: Fragment() {
 
         loadingView = view.findViewById(R.id.articles_loading)
         recyclerView = view.findViewById(R.id.articles_recycler)
+        recyclerView.layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.article_columns))
         recyclerView.adapter = adapter
         recyclerView.addOnScrollListener(object : OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
