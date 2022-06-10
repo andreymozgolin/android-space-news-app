@@ -27,7 +27,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"></action>
             </intent-filter>
         </receiver>
-        <receiver android:name=".receivers.AlarmReceiver"/>
+        <receiver android:name=".receivers.AlarmReceiver" android:process=":alarm"/>
         <service android:name=".services.NotificationService" android:exported="false"/>
     </application>
 
